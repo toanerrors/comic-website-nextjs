@@ -15,6 +15,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import Combobox from "./combobox";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Skeleton } from "./ui/skeleton";
 
 type Props = {
   chappers: ChapperData[];
@@ -22,6 +23,7 @@ type Props = {
 
 function DialogViewChapper({ chappers }: Props) {
   const [chapper, setChapper] = React.useState<ChapperDetail | null>();
+  const [loading, setLoading] = React.useState(false);
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -29,16 +31,19 @@ function DialogViewChapper({ chappers }: Props) {
   const current = Number(searchParams.get("chapper")) || 0;
 
   const fetchData = useCallback(async () => {
-    const chap = current - 1;
-    if (!chappers[chap]) return;
-    const chapper = chappers[chap];
     try {
+      setLoading(true);
+      const chap = current - 1;
+      if (!chappers[chap]) return;
+      const chapper = chappers[chap];
       if (!chapper.chapter_api_data) return;
       setChapper(null);
       const res = await fetchComicImages(chapper.chapter_api_data);
       setChapper(res?.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }, [chappers, current]);
 
@@ -67,22 +72,36 @@ function DialogViewChapper({ chappers }: Props) {
     const images = chapper?.item?.chapter_image || [];
 
     const path = domain + "/" + chapter_path + "/";
-    return { name, path, images };
+    return {
+      name,
+      path,
+      images: images.sort((a, b) => a.image_page - b.image_page),
+    };
   }, [chapper]);
 
   return (
     <Dialog open={current > 0} defaultOpen={current > 0} onOpenChange={onClose}>
       <DialogContent className="sm:w-[95vw] p-0 w-full max-w-full sm:h-[97vh] h-full">
+        {loading && (
+          <div className="w-[90%] mx-auto my-5 h-[85vh] flex flex-col gap-3 items-center justify-center">
+            <Skeleton className="w-full h-full rounded-xl" />
+            <Skeleton className="w-full h-full rounded-xl" />
+          </div>
+        )}
+
         <ScrollArea className="h-full w-full mx-auto sm:w-[70%]">
           {images.length > 0 &&
             images.map((image) => {
               return (
                 <div className="w-full h-full relative" key={image.image_file}>
-                  <img
+                  <Image
                     className="w-full h-full mt-0 p-0 object-contain relative"
                     src={path + image.image_file}
                     alt={name}
-                    loading="lazy"
+                    loading="eager"
+                    loader={() => path + image.image_file}
+                    width={1000}
+                    height={1000}
                   />
                 </div>
               );

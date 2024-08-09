@@ -28,10 +28,10 @@ function ComicCard({
 }: Props) {
   return (
     <Card className="max-w-sm overflow-hidden">
-      <CardHeader className="w-full h-64 overflow-hidden p-0">
+      <CardHeader className="w-full  overflow-hidden p-0">
         <Link href={`/truyen-tranh/${slug}`}>
           <Image
-            className="object-cover w-full h-full"
+            className="object-cover w-full h-44 md:h-64"
             src={imageCDN + thumb_url}
             alt={name}
             width={200}
