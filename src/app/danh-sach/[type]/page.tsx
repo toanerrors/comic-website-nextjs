@@ -32,8 +32,9 @@ async function List({ params, searchParams }: Props) {
             status={item?.status}
             thumb_url={item?.thumb_url}
             category={item?.category}
-            latestChapter={item?.latestChapter}
+            latestChapter={item?.chaptersLatest}
             imageCDN={imageCDN + "/uploads/comics/"}
+            updatedAt={item.updatedAt}
           />
         ))}
       </div>

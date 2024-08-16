@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useMemo } from "react";
 
 import {
   NavigationMenu,
@@ -12,24 +13,33 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { type Navigation, navigation } from "@/config";
+import { usePathname } from "next/navigation";
 
 function Navigation() {
+  const pathname = usePathname();
+
+  const active = (href: string) => {
+    return pathname === href ? "bg-accent text-accent-foreground" : "";
+  };
+
   return (
     <NavigationMenu className="w-full mt-2">
       <NavigationMenuList className="flex flex-wrap">
         {navigation.map((item) => (
-          <MainItem key={item.title} item={item} />
+          <MainItem key={item.title} item={item} active={active(item.href)} />
         ))}
       </NavigationMenuList>
     </NavigationMenu>
   );
 }
 
-const MainItem = ({ item }: { item: Navigation }) => {
+const MainItem = ({ item, active }: { item: Navigation; active: string }) => {
   if (item.children) {
     return (
       <NavigationMenuItem>
-        <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger className={active}>
+          {item.title}
+        </NavigationMenuTrigger>
         <NavigationMenuContent>
           <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
             {item.children?.map((child) => (
@@ -46,7 +56,9 @@ const MainItem = ({ item }: { item: Navigation }) => {
   return (
     <NavigationMenuItem>
       <Link href={item.href} legacyBehavior passHref>
-        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+        <NavigationMenuLink
+          className={navigationMenuTriggerStyle() + " " + active}
+        >
           {item.title}
         </NavigationMenuLink>
       </Link>

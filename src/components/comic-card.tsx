@@ -1,9 +1,8 @@
 import React from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { cn, fToNow } from "@/lib/utils";
 import Link from "next/link";
-import { statuses } from "@/config";
 
 type Props = {
   name: string;
@@ -14,6 +13,7 @@ type Props = {
   category: Category[];
   latestChapter: LatestChapter[];
   imageCDN: string;
+  updatedAt: string;
 };
 
 function ComicCard({
@@ -25,10 +25,11 @@ function ComicCard({
   category,
   latestChapter,
   imageCDN,
+  updatedAt,
 }: Props) {
   return (
-    <Card className="max-w-sm overflow-hidden">
-      <CardHeader className="w-full  overflow-hidden p-0">
+    <Card className="max-w-sm overflow-hidden relative">
+      <CardHeader className="w-full  overflow-hidden p-0 relative">
         <Link href={`/truyen-tranh/${slug}`}>
           <Image
             className="object-cover w-full h-44 md:h-64"
@@ -38,6 +39,10 @@ function ComicCard({
             height={200}
           />
         </Link>
+
+        <div className="absolute bottom-0 right-3 ">
+          {fToNow(new Date(updatedAt))}
+        </div>
       </CardHeader>
       <CardContent className="p-2">
         <div className="flex items-center justify-between">
@@ -48,16 +53,19 @@ function ComicCard({
             {name}
           </Link>
         </div>
-        <div className="flex items-center justify-between"></div>
+        <div className="flex flex-col justify-between">
+          {latestChapter.length > 0 &&
+            latestChapter.map((item) => (
+              <Link
+                key={item.chapter_name}
+                href={`/truyen-tranh/${slug}?chapper=${item.chapter_name}`}
+                className="text-xs font-medium text-gray-700 dark:text-gray-100 hover:underline dark:hover:underline overflow-hidden"
+              >
+                {item.filename}
+              </Link>
+            ))}
+        </div>
       </CardContent>
-      <CardFooter className="p-2 flex justify-center items-center">
-        <Link
-          href={`/truyen-tranh/${slug}`}
-          className="inline-flex items-center justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 dark:bg-gray-800"
-        >
-          Đọc truyện
-        </Link>
-      </CardFooter>
     </Card>
   );
 }
